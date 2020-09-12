@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="/">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Logo -->
+    <link rel="shortcut icon" type="image/png" href="/assets/images/logo.png"/>
+
+
+    <title>PriceLabs </title>
+
+    <!-- Style sheets -->
+    <link rel="stylesheet" href="assets/css/style.css"/>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <!-- Angularjs File -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
+
+    <!-- App config -->
+    <script src="app/app.js"></script>
+    <script src="app/routes.js"></script>
+
+    <!-- Angular Controller files -->
+    <script src="app/controllers/mainController.js"></script>
+
+    <!-- Angular Services -->
+    <script src="app/services/userServices.js"></script>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Font library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+
+<body ng-app="userApp" ng-controller="mainController as main" ng-show="main.loadme" ng-cloak>
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="/">
+            <img src="/assets/images/logo.png" alt="ICL Logo" width="50px"> PriceLabs
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a href="/" class="nav-link"><i class="fa fa-home"></i> Home </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main role="main" class="container">
+        <h3 class="text-center" style="margin-top: 3rem">Welcome to PriceLabs!</h3>
+
+        <div class="container-overview mt-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="row" style="padding: 10px;">
+                            <div class="col-md-4 form-group">
+                                <select class="form-control" ng-model="selectSeason">
+                                    <option value="">-- Select Season --</option>
+                                    <option ng-value="season" ng-repeat="season in main.seasonArray"> {{ season }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <select class="form-control" ng-model="selectCity">
+                                    <option value="">-- Select City --</option>
+                                    <option value="{{ city }}" ng-repeat="city in main.cityArray"> {{ city }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <select class="form-control" ng-model="selectWinnerTeam">
+                                    <option value="">-- Select Winner Team --  </option>
+                                    <option ng-value="team" ng-repeat="team in main.teamArray"> {{ team }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <small>{{ results.length }} results available</small>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="card mb-4 box-shadow match">
+                        <div class="card-body">
+                            <div class="spinner-border"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6" ng-repeat="match in results=(main.matches | filter: { season : selectSeason, winner : selectWinnerTeam , city : selectCity } | limitTo : main.limit )">
+                    <div class="card mb-4 box-shadow match">
+                        <div class="card-header"><b>{{ match.team1 }}</b> vs <b>{{ match.team2 }}</b></div>
+                        <div class="card-body">
+                            <p class="card-text">{{ match.winner }} won by <span ng-if="match.win_by_runs">{{ match.win_by_runs }} Runs</span><span ng-if="match.win_by_wickets">{{ match.win_by_wickets}} Wickets</span> </p>
+                            <small class="text-muted"><i class="fa fa-calendar"></i>&nbsp; {{ match.date | date:'d MMMM yyyy' }}</small><br>
+                            <small class="text-muted"><i class="fa fa-street-view"></i>&nbsp; {{ match.venue }} </small><br>
+                            <small class="text-muted"><i class="fa fa-map-marker"></i>&nbsp; {{ match.city }} </small>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="btn-group">
+                                    <a href="/match/{{ match._id }}" ng-show="!main.authorized" class="btn btn-sm btn-outline-secondary">View more &nbsp;<i class="fa fa-angle-double-right"></i> </a>
+                                    <a href="/editMatch/{{ match._id }}" ng-show="main.authorized"class="btn btn-sm btn-outline-secondary"> Edit &nbsp;<i class="fa fa-pencil"></i> </a>
+                                </div>
+                                <small class="text-muted">Season : {{ match.season }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-if="results.length >= 10">
+                    <button ng-click="main.loadmore();" type="button" class="btn btn-outline-primary btn-lg btn-block">Load More</button>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <footer class="page-footer font-small blue mt-5">
+
+            <!-- Copyright -->
+            <div class="footer-copyright text-center py-3"> Made with <i class="text-danger fa fa-heart"></i>
+                <a href="https://github.com/pankajtanwarbanna" target="_blank"> Pankaj Tanwar </a>
+            </div>
+            <!-- Copyright -->
+
+        </footer>
+        <!-- Footer -->
+    </main>
+
+    <!-- Footer -->
+    <!--<footer class="footer">
+        <div class="container text-center">
+            <p>Made with <i class="fa fa-heart text-danger"></i> &nbsp;by <a href="https://github.com/Pankajtanwarbanna" target="_blank"> Pankaj Tanwar Banna</a> </p>
+        </div>
+    </footer>-->
+
+
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
